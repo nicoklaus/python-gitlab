@@ -550,7 +550,8 @@ class Project(
         path = f"/projects/{self.encoded_id}/mirror/pull"
         self.manager.gitlab.http_post(path, **kwargs)
 
-    # Deactivation works via the same API Method, so a URL is required for deactivation even if it is not actually needed
+    # Deactivation works via the same API Method,
+    # so a URL is required for deactivation even if it is not actually needed
     @cli.register_custom_action(cls_names="Project", required=("url",))
     @exc.on_http_error(exc.GitlabCreateError)
     def mirror_pull_configuration(
@@ -568,14 +569,16 @@ class Project(
         """Configure pull mirroring settings.
 
         Args:
-            enabled: Enables pull mirroring on project when set to true
+            enabled: Enables pull mirroring on project
             url: URL of remote repository being mirrored
             auth_user: Username used for authentication of a project to pull mirror
             auth_password: Password used for authentication of a project to pull mirror
-            mirror_trigger_builds: Trigger pipelines for mirror updates when set to true
-            only_mirror_protected_branches: Limits mirroring to only protected branches when set to true
+            mirror_trigger_builds: Trigger pipelines for mirror updates
+            only_mirror_protected_branches: Limits mirroring to only protected branches
             mirror_overwrites_diverged_branches: Overwrite diverged branches
-            mirror_branch_regex: Contains a regular expression. Only branches with names matching the regex are mirrored. Requires only_mirror_protected_branches to be disabled
+            mirror_branch_regex: Contains a regular expression.
+                Only branches with names matching the regex are mirrored.
+                Requires only_mirror_protected_branches to be disabled.
             **kwargs: Extra options to send to the server (e.g. sudo)
 
         Raises:
