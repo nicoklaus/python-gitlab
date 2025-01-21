@@ -11,7 +11,9 @@ from typing import (
     Dict,
     Iterator,
     List,
+    Literal,
     Optional,
+    overload,
     TYPE_CHECKING,
     Union,
 )
@@ -86,7 +88,10 @@ from .pipelines import (  # noqa: F401
 )
 from .project_access_tokens import ProjectAccessTokenManager  # noqa: F401
 from .push_rules import ProjectPushRulesManager  # noqa: F401
-from .registry_protection_rules import (  # noqa: F401
+from .registry_protection_repository_rules import (  # noqa: F401
+    ProjectRegistryRepositoryProtectionRuleManager,
+)
+from .registry_protection_rules import (  # noqa: F401; deprecated
     ProjectRegistryProtectionRuleManager,
 )
 from .releases import ProjectReleaseManager  # noqa: F401
@@ -100,6 +105,14 @@ from .statistics import (  # noqa: F401
     ProjectIssuesStatisticsManager,
 )
 from .tags import ProjectProtectedTagManager, ProjectTagManager  # noqa: F401
+from .templates import (  # noqa: F401
+    ProjectDockerfileTemplateManager,
+    ProjectGitignoreTemplateManager,
+    ProjectGitlabciymlTemplateManager,
+    ProjectIssueTemplateManager,
+    ProjectLicenseTemplateManager,
+    ProjectMergeRequestTemplateManager,
+)
 from .triggers import ProjectTriggerManager  # noqa: F401
 from .users import ProjectUserManager  # noqa: F401
 from .variables import ProjectVariableManager  # noqa: F401
@@ -189,27 +202,33 @@ class Project(
     customattributes: ProjectCustomAttributeManager
     deployments: ProjectDeploymentManager
     deploytokens: ProjectDeployTokenManager
+    dockerfile_templates: ProjectDockerfileTemplateManager
     environments: ProjectEnvironmentManager
     events: ProjectEventManager
     exports: ProjectExportManager
     files: ProjectFileManager
     forks: "ProjectForkManager"
     generic_packages: GenericPackageManager
+    gitignore_templates: ProjectGitignoreTemplateManager
+    gitlabciyml_templates: ProjectGitlabciymlTemplateManager
     groups: ProjectGroupManager
     hooks: ProjectHookManager
     imports: ProjectImportManager
     integrations: ProjectIntegrationManager
     invitations: ProjectInvitationManager
     issues: ProjectIssueManager
+    issue_templates: ProjectIssueTemplateManager
     issues_statistics: ProjectIssuesStatisticsManager
     iterations: ProjectIterationManager
     jobs: ProjectJobManager
     job_token_scope: ProjectJobTokenScopeManager
     keys: ProjectKeyManager
     labels: ProjectLabelManager
+    license_templates: ProjectLicenseTemplateManager
     members: ProjectMemberManager
     members_all: ProjectMemberAllManager
     mergerequests: ProjectMergeRequestManager
+    merge_request_templates: ProjectMergeRequestTemplateManager
     merge_trains: ProjectMergeTrainManager
     milestones: ProjectMilestoneManager
     notes: ProjectNoteManager
@@ -225,6 +244,7 @@ class Project(
     protectedtags: ProjectProtectedTagManager
     pushrules: ProjectPushRulesManager
     registry_protection_rules: ProjectRegistryProtectionRuleManager
+    registry_protection_repository_rules: ProjectRegistryRepositoryProtectionRuleManager
     releases: ProjectReleaseManager
     resource_groups: ProjectResourceGroupManager
     remote_mirrors: "ProjectRemoteMirrorManager"
@@ -468,6 +488,42 @@ class Project(
         """
         path = f"/projects/{self.encoded_id}/restore"
         self.manager.gitlab.http_post(path, **kwargs)
+
+    @overload
+    def snapshot(
+        self,
+        wiki: bool = False,
+        streamed: Literal[False] = False,
+        action: None = None,
+        chunk_size: int = 1024,
+        *,
+        iterator: Literal[False] = False,
+        **kwargs: Any,
+    ) -> bytes: ...
+
+    @overload
+    def snapshot(
+        self,
+        wiki: bool = False,
+        streamed: bool = False,
+        action: None = None,
+        chunk_size: int = 1024,
+        *,
+        iterator: Literal[True] = True,
+        **kwargs: Any,
+    ) -> Iterator[Any]: ...
+
+    @overload
+    def snapshot(
+        self,
+        wiki: bool = False,
+        streamed: Literal[True] = True,
+        action: Optional[Callable[[bytes], None]] = None,
+        chunk_size: int = 1024,
+        *,
+        iterator: Literal[False] = False,
+        **kwargs: Any,
+    ) -> None: ...
 
     @cli.register_custom_action(cls_names="Project", optional=("wiki",))
     @exc.on_http_error(exc.GitlabGetError)

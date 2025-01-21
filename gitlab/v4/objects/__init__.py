@@ -55,6 +55,7 @@ from .pipelines import *
 from .project_access_tokens import *
 from .projects import *
 from .push_rules import *
+from .registry_protection_repository_rules import *
 from .registry_protection_rules import *
 from .releases import *
 from .repositories import *
